@@ -11,6 +11,7 @@
     <AssemblyName>Mozhina.Nsudotnet.Rss2Email</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <NuGetPackageImportStamp>05527df7</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,15 +34,33 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Properties\Rss2Email.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Rss2Email.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Forwarder.cs" />
+    <Compile Include="Properties\Rss2Email.cs" />
+    <Compile Include="Properties\Rss2Email.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Rss2Email.settings</DependentUpon>
+    </Compile>
     <Compile Include="RssChannel.cs" />
     <Compile Include="RssFeed.cs" />
     <Compile Include="RssItem.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Mozhina.Nsudotnet.Rss2Email.Mail">
+      <HintPath>..\Mozhina.Nsudotnet.Rss2Email.Mail\bin\Debug\Mozhina.Nsudotnet.Rss2Email.Mail.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Web.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Web.WebPages.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.XML" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

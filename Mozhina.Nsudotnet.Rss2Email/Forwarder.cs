@@ -8,7 +8,7 @@ using System.Threading;
 using System.Timers;
 using System.Xml;
 using System.Xml.Serialization;
-using Microsoft.Win32;
+using Mozhina.Nsudotnet.Rss2Email.Mail;
 using Timer = System.Timers.Timer;
 
 namespace Mozhina.Nsudotnet.Rss2Email
@@ -31,7 +31,7 @@ namespace Mozhina.Nsudotnet.Rss2Email
         
         private DateTime _lastSent = DateTime.MinValue;
 
-        private Semaphore _smtpGuard;
+        private Mutex _smtpGuard;
 
         public Forwarder(string sender, string recipient, string feedUri)
         {
@@ -45,15 +45,16 @@ namespace Mozhina.Nsudotnet.Rss2Email
                 Port = 587,
                 EnableSsl = true,
                 Credentials = new NetworkCredential(Sender.User, "nsudotnet12201"),
-                DeliveryMethod = SmtpDeliveryMethod.Network
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                Timeout = 15000
             };
 
             _feedSerializer = new XmlSerializer(typeof (RssFeed));
 
-            _timer = new Timer(600000); //check every 10 minutes
+            _timer = new Timer(600); //check every 10 minutes
             _timer.Elapsed += RetrieveFeedItems;
 
-            _smtpGuard = new Semaphore(1, 1);
+            _smtpGuard = new Mutex();
 
             InitDates();
 
@@ -62,17 +63,8 @@ namespace Mozhina.Nsudotnet.Rss2Email
 
         private void InitDates()
         {
-            RegistryKey key = Registry.CurrentUser.OpenSubKey("Software\\Rss2Email", true);
-
-            if (key == null)
-            {
-                _lastCheck = DateTime.MinValue;
-                _lastSent = DateTime.MinValue;
-                return;
-            }
-
-            DateTime.TryParse(key.GetValue("lastCheck", DateTime.MinValue).ToString(), out _lastCheck);
-            DateTime.TryParse(key.GetValue("lastSent", DateTime.MinValue).ToString(), out _lastSent);
+            _lastCheck = Properties.Rss2Email.Default.lastCheck;
+            _lastSent = Properties.Rss2Email.Default.lastSent;
         }
 
         public void Enable(bool enabled)
@@ -102,18 +94,26 @@ namespace Mozhina.Nsudotnet.Rss2Email
                             List<RssItem> items = feed.Channel.Items;
 
                             items.Sort();
+
+                            if (items.Last().Date <= _lastSent)
+                                return;
+
                             _smtpGuard.WaitOne();
+
+                            if (items.Last().Date <= _lastSent)
+                                return;
 
                             foreach (var item in items)
                             {
                                 if (item.Date > _lastSent)
                                 {
                                     SendItem(item, Recipient);
+
+                                    _lastSent = item.Date;
                                 }
                             }
-                            _lastSent = items.Last().Date;
 
-                            _smtpGuard.Release();
+                            _smtpGuard.ReleaseMutex();
                         }
                     }
                 }
@@ -123,6 +123,10 @@ namespace Mozhina.Nsudotnet.Rss2Email
                 var response = (HttpWebResponse) ex.Response;
                 if (response.StatusCode != HttpStatusCode.NotModified)
                     throw;
+            }
+            catch (SmtpException ex)
+            {
+
             }
         }
 
@@ -148,27 +152,10 @@ namespace Mozhina.Nsudotnet.Rss2Email
 
         private void SaveDates(object sender, EventArgs e)
         {
-            RegistryKey key = Registry.CurrentUser.OpenSubKey("Software\\Rss2Email", true);
+            Properties.Rss2Email.Default.lastCheck = _lastCheck;
+            Properties.Rss2Email.Default.lastSent = _lastSent;
 
-            if (key != null)
-            {
-                key.SetValue("lastCheck", _lastCheck);
-                key.SetValue("lastSent", _lastSent);
-                return;
-            }
-
-            key = Registry.CurrentUser.CreateSubKey("Software");
-
-            if (key == null)
-                return;
-
-            key = key.CreateSubKey("Rss2Email");
-
-            if (key == null)
-                return;
-
-            key.SetValue("lastCheck", _lastCheck);
-            key.SetValue("lastSent", _lastSent);
+            Properties.Rss2Email.Default.Save();
         }
 
         public static void Main()

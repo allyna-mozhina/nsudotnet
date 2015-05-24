@@ -8,7 +8,6 @@ using System.Threading;
 using System.Timers;
 using System.Xml;
 using System.Xml.Serialization;
-using Mozhina.Nsudotnet.Rss2Email.Mail;
 using Timer = System.Timers.Timer;
 
 namespace Mozhina.Nsudotnet.Rss2Email
@@ -31,8 +30,6 @@ namespace Mozhina.Nsudotnet.Rss2Email
         
         private DateTime _lastSent = DateTime.MinValue;
 
-        private Mutex _smtpGuard;
-
         public Forwarder(string sender, string recipient, string feedUri)
         {
             Sender = new MailAddress(sender);
@@ -53,8 +50,6 @@ namespace Mozhina.Nsudotnet.Rss2Email
 
             _timer = new Timer(600); //check every 10 minutes
             _timer.Elapsed += RetrieveFeedItems;
-
-            _smtpGuard = new Mutex();
 
             InitDates();
 
@@ -98,22 +93,21 @@ namespace Mozhina.Nsudotnet.Rss2Email
                             if (items.Last().Date <= _lastSent)
                                 return;
 
-                            _smtpGuard.WaitOne();
-
-                            if (items.Last().Date <= _lastSent)
-                                return;
-
-                            foreach (var item in items)
+                            lock (_smtpClient)
                             {
-                                if (item.Date > _lastSent)
+                                if (items.Last().Date <= _lastSent)
+                                    return;
+
+                                foreach (var item in items)
                                 {
-                                    SendItem(item, Recipient);
+                                    if (item.Date > _lastSent)
+                                    {
+                                        SendItem(item, Recipient);
 
-                                    _lastSent = item.Date;
-                                }
+                                        _lastSent = item.Date;
+                                    }
+                                }    
                             }
-
-                            _smtpGuard.ReleaseMutex();
                         }
                     }
                 }

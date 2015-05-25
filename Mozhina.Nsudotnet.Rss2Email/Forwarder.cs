@@ -4,8 +4,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
-using System.Threading;
 using System.Timers;
+using System.Web;
 using System.Xml;
 using System.Xml.Serialization;
 using Timer = System.Timers.Timer;
@@ -23,6 +23,8 @@ namespace Mozhina.Nsudotnet.Rss2Email
         private SmtpClient _smtpClient;
         
         private XmlSerializer _feedSerializer;
+
+        private ViewRenderer _viewRenderer;
 
         private Timer _timer;
 
@@ -47,6 +49,7 @@ namespace Mozhina.Nsudotnet.Rss2Email
             };
 
             _feedSerializer = new XmlSerializer(typeof (RssFeed));
+            _viewRenderer = new ViewRenderer();
 
             _timer = new Timer(600); //check every 10 minutes
             _timer.Elapsed += RetrieveFeedItems;
@@ -126,9 +129,10 @@ namespace Mozhina.Nsudotnet.Rss2Email
 
         private void SendItem(RssItem item, MailAddress mailto)
         {
-            string body = "<a href='" + item.Link + "'>" + item.Title + "</a><br>" + item.Description;
+            string body = _viewRenderer.RenderView(item, "ItemView");
+            body = HttpUtility.HtmlDecode(body);
 
-            using (var htmlBody = AlternateView.CreateAlternateViewFromString(body, new ContentType("text/html")))
+            using (var htmlBody = AlternateView.CreateAlternateViewFromString(body, new ContentType(MediaTypeNames.Text.Html)))
             {
                 using (var message = new MailMessage
                 {
@@ -157,7 +161,7 @@ namespace Mozhina.Nsudotnet.Rss2Email
             Forwarder fwd = new Forwarder("dotnetfwd@yandex.ru", "dotnetfwd@yandex.ru", "http://fit.nsu.ru/component/ninjarsssyndicator/?feed_id=1&format=raw");
             
             fwd.Enable(true);
-
+            
             Console.ReadKey();
         }
     }

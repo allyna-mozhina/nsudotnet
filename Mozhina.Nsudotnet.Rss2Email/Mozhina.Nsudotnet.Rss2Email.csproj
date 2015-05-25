@@ -34,13 +34,28 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
     <None Include="Properties\Rss2Email.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Rss2Email.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Views\Mail\ItemView.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>ItemView.generated.cs</LastGenOutput>
+      <CustomToolNamespace>Mozhina.Nsudotnet.Rss2Email</CustomToolNamespace>
+    </None>
+    <None Include="Views\Web.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Forwarder.cs" />
+    <Compile Include="Mocks\ControllerContextMock.cs" />
+    <Compile Include="Mocks\ControllerMock.cs" />
+    <Compile Include="Mocks\HttpBrowserCapabilitiesMock.cs" />
+    <Compile Include="Mocks\HttpContextMock.cs" />
+    <Compile Include="Mocks\HttpRequestMock.cs" />
+    <Compile Include="Mocks\VirtualPathFactoryMock.cs" />
     <Compile Include="Properties\Rss2Email.cs" />
     <Compile Include="Properties\Rss2Email.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -50,19 +65,36 @@
     <Compile Include="RssChannel.cs" />
     <Compile Include="RssFeed.cs" />
     <Compile Include="RssItem.cs" />
+    <Compile Include="Views\Mail\ItemView.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ItemView.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ViewRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Mozhina.Nsudotnet.Rss2Email.Mail">
-      <HintPath>..\Mozhina.Nsudotnet.Rss2Email.Mail\bin\Debug\Mozhina.Nsudotnet.Rss2Email.Mail.dll</HintPath>
+    <Reference Include="Mvc.Mailer, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>packages\MvcMailer-vs2013.4.5.1-pre\lib\45\Mvc.Mailer.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Web.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Web.WebPages, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Web.WebPages.Deployment, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Web.WebPages.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.XML" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Mozhina.Nsudotnet.Rss2Email.Mail\Mozhina.Nsudotnet.Rss2Email.Mail.csproj">
+      <Project>{d7b6b149-a609-4753-ae2a-c359737b7784}</Project>
+      <Name>Mozhina.Nsudotnet.Rss2Email.Mail</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

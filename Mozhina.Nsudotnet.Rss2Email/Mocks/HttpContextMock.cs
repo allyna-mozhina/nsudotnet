@@ -18,36 +18,26 @@ namespace Mozhina.Nsudotnet.Rss2Email.Mocks
 
         public override IDictionary Items
         {
-            get { return _items; }
+            get
+            {
+                return _items;
+            }
         }
         
         public override HttpRequestBase Request
         {
-            get { return _request; }
+            get
+            {
+                return _request;
+            }
         }
 
         public override HttpResponseBase Response
         {
-            get { return _response; }
+            get
+            {
+                return _response;
+            }
         }
-
-    }
-
-    public class HttpResponseMock : HttpResponseBase
-    {
-        public HttpResponseMock()
-        {
-            
-        }
-
-        private HttpCookieCollection _cookies = new HttpCookieCollection();
-
-
-        public override HttpCookieCollection Cookies
-        {
-            get { return _cookies; }
-        }
-
-        
     }
 }

@@ -17,6 +17,12 @@ namespace Mozhina.Nsudotnet.Rss2Email.Mocks
             _httpContextBase = httpContextBase;
         }
 
-        public override HttpContextBase HttpContext { get { return _httpContextBase; }}
+        public override HttpContextBase HttpContext
+        {
+            get
+            {
+                return _httpContextBase;
+            }
+        }
     }
 }
